@@ -1,5 +1,5 @@
-##EFL for gix window system
+## EFL for gix window system
 
-###Build command:
+### Build command:
 meson build --cross-file=cross_file.txt --prefix=/tmp/eflbin/
 
