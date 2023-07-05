@@ -1,0 +1,24 @@
+[binaries]
+c = 'arm-linux-gnueabihf-gcc'
+cpp = 'arm-linux-gnueabihf-g++'
+ar = 'arm-linux-gnueabihf-ar'
+strip = 'arm-linux-gnueabihf-strip'
+#exe_wrapper = 'wine' # A command used to run generated executables.
+pkgconfig = 'pkg-config'
+cmake = 'cmake'
+
+[host_machine]
+system = 'linux'
+cpu_family = 'arm'
+cpu = 'arm'
+endian = 'little'
+
+
+[properties]
+skip_sanity_check = true
+sys_root = '/mnt/sdc1/ssd20x/openwrt-ssd20x/18.06/staging_dir/target-arm-linux-gnueabihf_glibc/usr/'
+c_args = ['-I/mnt/sdc1/ssd20x/openwrt-ssd20x/18.06/staging_dir/target-arm-linux-gnueabihf_glibc/usr/include/','-I/mnt/sdc1/ssd20x/openwrt-ssd20x/18.06/staging_dir/target-arm-linux-gnueabihf_glibc/usr/include/freetype2/', '-I/mnt/sdc1/ssd20x/openwrt-ssd20x/18.06/staging_dir/target-arm-linux-gnueabihf_glibc/usr//include/dbus-1.0/', '-I/mnt/sdc1/ssd20x/openwrt-ssd20x/18.06/staging_dir/target-arm-linux-gnueabihf_glibc/usr/lib/dbus-1.0/include/', '-O2', '-pipe', '-g', '-feliminate-unused-debug-types']
+c_link_args = ['-L/mnt/sdc1/ssd20x/openwrt-ssd20x/18.06/staging_dir/target-arm-linux-gnueabihf_glibc/usr/lib/', '-Wl,-rpath-link=/mnt/sdc1/ssd20x/openwrt-ssd20x/18.06/staging_dir/target-arm-linux-gnueabihf_glibc/usr/lib/', '-Wl,-O1', '-Wl,--hash-style=gnu', '-Wl,--as-needed']
+cpp_args = ['-I/mnt/sdc1/ssd20x/openwrt-ssd20x/18.06/staging_dir/target-arm-linux-gnueabihf_glibc/usr/include/', '-I/mnt/sdc1/ssd20x/openwrt-ssd20x/18.06/staging_dir/target-arm-linux-gnueabihf_glibc/usr//include/dbus-1.0/', '-I/mnt/sdc1/ssd20x/openwrt-ssd20x/18.06/staging_dir/target-arm-linux-gnueabihf_glibc/usr/lib/dbus-1.0/include/', '-O2', '-pipe', '-g', '-feliminate-unused-debug-types']
+cpp_link_args = ['-L/mnt/sdc1/ssd20x/openwrt-ssd20x/18.06/staging_dir/target-arm-linux-gnueabihf_glibc/usr/lib/', '-Wl,-rpath-link=/mnt/sdc1/ssd20x/openwrt-ssd20x/18.06/staging_dir/target-arm-linux-gnueabihf_glibc/usr/lib/','-Wl,-O1', '-Wl,--hash-style=gnu', '-Wl,--as-needed']
+pkg_config_libdir ='/mnt/sdc1/ssd20x/openwrt-ssd20x/18.06/staging_dir/target-arm-linux-gnueabihf_glibc/usr/lib/pkgconfig'
