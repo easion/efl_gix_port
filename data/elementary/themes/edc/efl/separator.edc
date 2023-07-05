@@ -1,0 +1,28 @@
+group { name: "efl/separator/horizontal";
+   data.item: "version" "124";
+   parts {
+      rect { name: "base";
+         scale: 1;
+         description { state: "default" 0.0;
+            min: 1 1;
+            max: 99999 1;
+            rel1.offset: 4 4;
+            rel2.offset: -5 -5;
+            color_class: "/fg/normal/separator/horizontal";
+         }
+      }
+   }
+}
+group { name: "efl/separator/vertical";
+   data.item: "version" "124";
+   inherit: "efl/separator/horizontal";
+   parts {
+      part { name: "base";
+         description { state: "default" 0.0;
+            max: 1 99999;
+            color_class: "/fg/normal/separator/vertical";
+         }
+      }
+   }
+}
+

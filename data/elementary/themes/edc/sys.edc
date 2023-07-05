@@ -1,0 +1,51 @@
+group { name: "e/sys/logout";
+   alias: "e/sys/halt";
+   alias: "e/sys/reboot";
+   alias: "e/sys/suspend";
+   alias: "e/sys/hibernate";
+   data.item: "borderless" "1";
+
+   styles {
+      style { name: "sys_style";
+         base: "font="FN" font_size=10 text_class=tb_plain align=left color=cc:/fg/normal/sys/text wrap=word";
+         tag: "br"      "\n";
+         tag: "b"       "+ font="FNBD"";
+         tag: "hilight" "+ font="FNBD" text_class=tb_light";
+         tag: "urgent"  "+ font="FNBD" color=cc:/fg/normal/sys/text/urgent";
+         tag: "title"   "+ font="FNBD" font_size=16 underline=on underline_color=cc:/fg/normal/sys/text/title/underline";
+      }
+   }
+   parts {
+      part { name: "bg"; type: RECT; mouse_events: 0;
+         description { state: "default" 0.0;
+            color_class: "/bg/normal/sys";
+         }
+      }
+      part { name: "e.textblock.message"; type: TEXTBLOCK;
+         scale: 1;
+         description { state: "default" 0.0;
+            rel1.relative: 1.0 0.0;
+            rel1.to_x: "knob";
+            rel1.offset: 8 8;
+            rel2.offset: -9 -9;
+            min: 20 80;
+            offscale;
+            text { style: "sys_style";
+               min: 1 1;
+               ellipsis: -1;
+            }
+         }
+      }
+      part { name: "busy_area"; type: SPACER;
+         description { state: "default" 0.0;
+            rel1.relative: 0.0 0.0;
+            rel1.offset: 8 8;
+            rel2.relative: 0.0 1.0;
+            rel2.offset: 8 -9;
+            align: 0.0 0.5;
+            FIXED_SIZE(40, 40)
+         }
+      }
+      BUSY("busy_area", "show", "", "hide", "")
+   }
+}
