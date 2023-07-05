@@ -1,8 +1,0 @@
-class @beta Elm_Bubble.Part extends Efl.Ui.Layout_Part_Legacy
-{
-   [[Elementary Bubble internal part class]]
-   data: null;
-   implements {
-      Efl.Text.text { set; }
-   }
-}

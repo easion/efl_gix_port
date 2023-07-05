@@ -1,4 +1,0 @@
-[D-BUS Service]
-Name=org.enlightenment.Ethumb
-Exec=@prefix@/bin/ethumbd
-@systemd_dbus_prefix@SystemdService=ethumb.service

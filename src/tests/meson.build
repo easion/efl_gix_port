@@ -1,1 +1,0 @@
-executable('timeout', 'timeout.c')

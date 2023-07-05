@@ -1,9 +1,0 @@
-class @beta Elm.Multibuttonentry_Part extends Efl.Ui.Layout_Part_Legacy
-{
-   [[Elementary multibuttonentry internal part class]]
-   data: null;
-   implements {
-      Efl.Text.text { set; get; }
-   }
-}
-

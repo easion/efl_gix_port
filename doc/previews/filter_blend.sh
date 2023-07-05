@@ -1,1 +1,0 @@
-TEXT="Blend Example"

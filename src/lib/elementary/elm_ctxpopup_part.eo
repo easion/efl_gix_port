@@ -1,9 +1,0 @@
-class @beta Elm.Ctxpopup.Part extends Efl.Ui.Layout_Part_Legacy
-{
-   [[Elementary contex popup internal part class]]
-   data: null;
-   implements {
-      Efl.Content.content { get; set; }
-      Efl.Content.content_unset;
-   }
-}
