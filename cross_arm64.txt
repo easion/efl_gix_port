@@ -1,0 +1,24 @@
+[binaries]
+c = 'aarch64-openwrt-linux-gnu-gcc'
+cpp = 'aarch64-openwrt-linux-gnu-g++'
+ar = 'aarch64-openwrt-linux-gnu-ar'
+strip = 'aarch64-openwrt-linux-gnu-strip'
+#exe_wrapper = 'wine' # A command used to run generated executables.
+pkgconfig = 'pkg-config'
+cmake = 'cmake'
+
+[host_machine]
+system = 'linux'
+cpu_family = 'arm64'
+cpu = 'arm64'
+endian = 'little'
+
+
+[properties]
+skip_sanity_check = true
+sys_root = '/mnt/usb/orangepi5/openwrt/staging_dir/target-aarch64_generic_glibc/usr/'
+c_args = ['-I/mnt/usb/orangepi5/openwrt/staging_dir/target-aarch64_generic_glibc/usr/include/','-I/mnt/usb/orangepi5/openwrt/staging_dir/target-aarch64_generic_glibc/usr/include/freetype2/', '-I/mnt/usb/orangepi5/openwrt/staging_dir/target-aarch64_generic_glibc/usr//include/dbus-1.0/', '-I/mnt/usb/orangepi5/openwrt/staging_dir/target-aarch64_generic_glibc/usr/lib/dbus-1.0/include/', '-O2', '-pipe', '-g', '-feliminate-unused-debug-types']
+c_link_args = ['-L/mnt/usb/orangepi5/openwrt/staging_dir/target-aarch64_generic_glibc/usr/lib/', '-Wl,-rpath-link=/mnt/usb/orangepi5/openwrt/staging_dir/target-aarch64_generic_glibc/usr/lib/', '-Wl,-O1', '-Wl,--hash-style=gnu', '-Wl,--as-needed']
+cpp_args = ['-I/mnt/usb/orangepi5/openwrt/staging_dir/target-aarch64_generic_glibc/usr/include/', '-I/mnt/usb/orangepi5/openwrt/staging_dir/target-aarch64_generic_glibc/usr//include/dbus-1.0/', '-I/mnt/usb/orangepi5/openwrt/staging_dir/target-aarch64_generic_glibc/usr/lib/dbus-1.0/include/', '-O2', '-pipe', '-g', '-feliminate-unused-debug-types']
+cpp_link_args = ['-L/mnt/usb/orangepi5/openwrt/staging_dir/target-aarch64_generic_glibc/usr/lib/', '-Wl,-rpath-link=/mnt/usb/orangepi5/openwrt/staging_dir/target-aarch64_generic_glibc/usr/lib/','-Wl,-O1', '-Wl,--hash-style=gnu', '-Wl,--as-needed']
+pkg_config_libdir ='/mnt/usb/orangepi5/openwrt/staging_dir/target-aarch64_generic_glibc/usr/lib/pkgconfig'

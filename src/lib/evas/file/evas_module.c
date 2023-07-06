@@ -185,6 +185,10 @@ EVAS_EINA_STATIC_MODULE_DEFINE(engine, software_ddraw);
 EVAS_EINA_STATIC_MODULE_DEFINE(engine, software_gdi);
 EVAS_EINA_STATIC_MODULE_DEFINE(engine, software_generic);
 EVAS_EINA_STATIC_MODULE_DEFINE(engine, software_x11);
+#ifdef EVAS_STATIC_BUILD_SOFTWARE_GIX
+EVAS_EINA_STATIC_MODULE_DEFINE(engine, software_gix);
+#endif
+
 EVAS_EINA_STATIC_MODULE_DEFINE(engine, wayland_shm);
 EVAS_EINA_STATIC_MODULE_DEFINE(engine, wayland_egl);
 #endif
@@ -270,6 +274,9 @@ static const struct {
 #endif
 #ifdef EVAS_STATIC_BUILD_SOFTWARE_X11
   EVAS_EINA_STATIC_MODULE_USE(engine, software_x11),
+#endif
+#ifdef EVAS_STATIC_BUILD_SOFTWARE_GIX
+  EVAS_EINA_STATIC_MODULE_USE(engine, software_gix),
 #endif
 #ifdef EVAS_STATIC_BUILD_WAYLAND_EGL
   EVAS_EINA_STATIC_MODULE_USE(engine, wayland_egl),

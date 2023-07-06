@@ -47,6 +47,12 @@ struct _Elm_Colorselector_Data
       Ecore_Event_Handler *key_up;
       Ecore_Event_Handler *mouse_up;
 #endif
+#ifdef HAVE_ELEMENTARY_GIX
+      Ecore_Gix_Window       xroot;
+      Ecore_Event_Handler *mouse_motion;
+      Ecore_Event_Handler *key_up;
+      Ecore_Event_Handler *mouse_up;
+#endif
    } grab;
 
    /* focus support data */

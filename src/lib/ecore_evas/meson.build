@@ -1,4 +1,4 @@
-ecore_evas_deps = [eina, ecore_input_evas, ecore_input, ecore, eet, evas, efl, eo, eina, emile, buildsystem]
+ecore_evas_deps = [eina, ecore_input_evas, ecore_input, ecore_gix, ecore, eet, evas, efl, eo, eina, emile, buildsystem]
 ecore_evas_pub_deps = [evas, ecore]
 ecore_evas_ext_deps = [buildsystem_simple]
 pub_eo_file_target = []
@@ -24,7 +24,7 @@ ecore_evas_src = files([
   'ecore_evas_cocoa.h',
   'ecore_evas_win32.h',
   'ecore_evas_x11.h',
-  'ecore_evas_util.c',
+  'ecore_evas_util.c',  
   'ecore_evas_fallback_selection.c'
 ])
 
@@ -32,6 +32,10 @@ ecore_evas_ext_deps += declare_dependency(
   include_directories: include_directories(join_paths('..', '..', 'modules', 'evas', 'engines', 'buffer')),
 )
 
+if (get_option('gix'))
+	ecore_evas_ext_deps += dependency('gix')
+	ecore_evas_src += 'ecore_evas_gix.c'
+endif
 
 ecore_evas_lib = library('ecore_evas',
     ecore_evas_src, pub_eo_file_target,

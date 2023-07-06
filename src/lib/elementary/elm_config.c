@@ -58,6 +58,7 @@ const char *_elm_engines[] = {
    "drm",
    "ddraw",
    "gl_drm",
+   "software_gix",
    NULL
 };
 

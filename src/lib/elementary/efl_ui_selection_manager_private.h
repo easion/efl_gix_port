@@ -48,7 +48,7 @@ typedef struct _Tmp_Info      Tmp_Info;
 typedef struct _Saved_Type    Saved_Type;
 
 
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
 typedef Eina_Bool (*X11_Converter_Fn_Cb)     (char *target, void *data, int size, void **data_ret, int *size_ret, Ecore_X_Atom *ttype, int *typesize);
 typedef int       (*X11_Response_Handler_Cb) (Sel_Manager_Selection *sel, Ecore_X_Event_Selection_Notify *);
 typedef Eina_Bool (*X11_Data_Preparer_Cb)    (Sel_Manager_Seat_Selection *seat_sel, Ecore_X_Event_Selection_Notify *, Efl_Ui_Selection_Data *, Tmp_Info **);
@@ -90,7 +90,7 @@ struct _Sel_Manager_Selection
    const char               *debug;
    Eina_Rw_Slice             data;
    Efl_Ui_Selection_Format   request_format;
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
    Eina_Bool               (*set) (Ecore_X_Window, const void *data, int size);
    Eina_Bool               (*clear) (void);
    void                    (*request) (Ecore_X_Window, const char *target);
@@ -147,7 +147,7 @@ struct _Sel_Manager_Selection_Lost
 struct _Sel_Manager_Seat_Selection
 {
    unsigned int seat;
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
    Sel_Manager_Selection *sel_list;
 #endif
 #ifdef HAVE_ELEMENTARY_WL2
@@ -223,7 +223,7 @@ struct _Sel_Manager_Atom
 {
    const char              *name;
    Efl_Ui_Selection_Format  format;
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
    // Called by ecore to do conversion
    X11_Converter_Fn_Cb      x_converter;
    X11_Data_Preparer_Cb     x_data_preparer;
@@ -295,7 +295,7 @@ Sel_Manager_Wl_Format_Translation sm_wl_convertion[] = {
 struct _Efl_Ui_Selection_Manager_Data
 {
    Eo                 *sel_man;
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
    Ecore_Event_Handler *notify_handler;
    Ecore_Event_Handler *clear_handler;
    Ecore_Event_Handler *fix_handler;

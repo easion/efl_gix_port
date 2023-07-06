@@ -982,6 +982,10 @@ if get_option('x11')
   elementary_deps += ecore_x
 endif
 
+if get_option('gix')
+  config_h.set('HAVE_ELEMENTARY_GIX', '1')
+  elementary_deps += ecore_gix
+endif
 if get_option('wl')
   config_h.set('HAVE_ELEMENTARY_WL2', '1')
   elementary_deps += ecore_wl2

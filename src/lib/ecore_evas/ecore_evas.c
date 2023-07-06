@@ -799,6 +799,30 @@ _ecore_evas_constructor_software_x11(int x, int y, int w, int h, const char *ext
    return ee;
 }
 
+static inline const char *
+_ecore_evas_parse_extra_options_gix(const char *extra_options, unsigned int *parent)
+{
+   //_ecore_evas_parse_extra_options_str(extra_options, "display=", disp_name);
+   _ecore_evas_parse_extra_options_uint(extra_options, "parent=", parent);
+   return extra_options;
+}
+
+Ecore_Evas *ecore_evas_software_gix_new( Ecore_X_Window parent, int x, int y, int w, int h);
+
+static Ecore_Evas *
+_ecore_evas_constructor_software_gix(int x, int y, int w, int h, const char *extra_options)
+{
+   //char *disp_name = NULL;
+   Ecore_Evas *ee = NULL;
+#ifdef BUILD_ECORE_EVAS_GIX
+   unsigned int parent = 0;
+   _ecore_evas_parse_extra_options_gix(extra_options, &parent);
+   ee = ecore_evas_software_gix_new( parent, x, y, w, h);
+   //free(disp_name);
+#endif
+   return ee;
+}
+
 static Ecore_Evas *
 _ecore_evas_constructor_cocoa(int x, int y, int w, int h, const char *extra_options)
 {
@@ -984,6 +1008,7 @@ _ecore_evas_constructor_buffer(int x EINA_UNUSED, int y EINA_UNUSED, int w, int 
 static const struct ecore_evas_engine _engines[] = {
   /* unix */
   {"software_x11", _ecore_evas_constructor_software_x11},
+  {"software_gix", _ecore_evas_constructor_software_gix},
   {"opengl_x11", _ecore_evas_constructor_opengl_x11},
   {"fb", _ecore_evas_constructor_fb},
   {"software_gdi", _ecore_evas_constructor_software_gdi},
@@ -3897,6 +3922,45 @@ _ecore_evas_aux_hint_free(Ecore_Evas *ee)
         free(aux);
      }
 }
+#ifdef BUILD_ECORE_EVAS_GIX
+
+#include <Ecore_Gix.h>
+
+EAPI Ecore_Evas *
+ecore_evas_software_gix_new_internal( Ecore_Gix_Window parent,
+				     int x, int y, int w, int h);
+
+EAPI Ecore_Evas *
+ecore_evas_software_gix_new( Ecore_X_Window parent, int x, int y, int w, int h)
+{
+   Ecore_Evas *ee;
+   Ecore_Evas *(*new)( Ecore_X_Window, int, int, int, int);
+#if 0
+   Eina_Module *m = _ecore_evas_engine_load("gix");
+   EINA_SAFETY_ON_NULL_RETURN_VAL(m, NULL);
+
+   new = eina_module_symbol_get(m, "ecore_evas_software_gix_new_internal");
+#else
+   new = &ecore_evas_software_gix_new_internal;
+#endif  
+   EINA_SAFETY_ON_NULL_RETURN_VAL(new, NULL);
+
+   ee = new( parent, x, y, w, h);
+
+   if (!_ecore_evas_cursors_init(ee))
+     {
+        ecore_evas_free(ee);
+        return NULL;
+     }
+   return ee;
+}
+
+
+EAPI Ecore_X_Window ecore_evas_software_gix_window_get(const Ecore_Evas *ee)
+{
+   return (Ecore_X_Window) ecore_evas_window_get(ee);
+}
+#endif
 
 EAPI Ecore_Evas *
 ecore_evas_fb_new(const char *disp_name, int rotation, int w, int h)

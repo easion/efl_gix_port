@@ -1,6 +1,7 @@
 engines = [
  ['buffer', []],
  ['fb', ['fb']],
+ ['software_gix', ['gix']],
  ['drm', ['drm']],
  ['software_x11', ['x11']],
  ['wayland_shm', ['wl']],
@@ -65,6 +66,12 @@ foreach engine_conf : engines
     config_h.set('BUILD_ENGINE_'+engine.to_upper(), '1')
   endif
 endforeach
+
+if (get_option('gix'))
+	config_h.set('EVAS_STATIC_BUILD_SOFTWARE_GIX', '1')
+else
+	#config_h.set('EVAS_STATIC_BUILD_SOFTWARE_GIX', '111')
+endif
 
 config_h.set('EVAS_STATIC_BUILD_SOFTWARE_GENERIC', '1')
 config_h.set('BUILD_ENGINE_SOFTWARE_GENERIC', '1')

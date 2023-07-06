@@ -6,10 +6,10 @@
 
 png = dependency('libpng')
 tiff = dependency('libtiff-4', required: get_option('evas-loaders-disabler').contains('tiff') == false)
-giflib = cc.find_library('gif')
+#giflib = cc.find_library('gif')
 webp = dependency('libwebp', version: ['>=0.5.0'], required: get_option('evas-loaders-disabler').contains('webp') == false)
 webpdemux = dependency('libwebpdemux', version: ['>=0.5.0'], required: get_option('evas-loaders-disabler').contains('webp') == false)
-libopenjp2 = dependency('libopenjp2', required: get_option('evas-loaders-disabler').contains('jp2k') == false)
+# libopenjp2 = dependency('libopenjp2', required: get_option('evas-loaders-disabler').contains('jp2k') == false)
 libavif = dependency('libavif', required: get_option('evas-loaders-disabler').contains('avif') == false, version: '>= 0.8.2')
 heif= dependency('libheif', required: get_option('evas-loaders-disabler').contains('heif') == false)
 
@@ -18,11 +18,11 @@ evas_image_loaders_file = [
      ['bmp',     'shared', []],
      ['eet',     'static', [eet]],
      ['generic', 'shared', [rt]],
-     ['gif',     'shared', [giflib]],
+#     ['gif',     'shared', [giflib]],
      ['heif',    'shared', [heif]],
      ['ico',     'shared', []],
      ['jpeg',    'static', [jpeg]],
-     ['jp2k',    'shared', [libopenjp2]],
+#     ['jp2k',    'shared', [libopenjp2]],
      ['pmaps',   'shared', []],
      ['png',     'static', [png]],
      ['psd',     'shared', []],
@@ -213,7 +213,19 @@ endif
 evas_link = [ ]
 evas_pub_deps = [eina, ecore, ector, emile]
 
-if  cpu_sse3 == true or cpu_neon == true and cpu_neon_intrinsics == false
+if (get_option('gix'))
+	file = join_paths(meson.source_root(), 'src', 'modules', 'evas', 'engines', 'software_gix', 'evas_engine.c')
+	evas_static_list += [declare_dependency(sources: file,)]
+
+	file = join_paths(meson.source_root(), 'src', 'modules', 'evas', 'engines', 'software_gix', 'evas_gix_buffer.c')
+	evas_static_list += [declare_dependency(sources: file,)]
+
+	file = join_paths(meson.source_root(), 'src', 'modules', 'evas', 'engines', 'software_gix', 'evas_gix_outbuf.c')
+	evas_static_list += [declare_dependency(sources: file, dependencies: dependency('gix') )]
+else
+endif
+
+if cpu_sse3 == true or cpu_neon == true and cpu_neon_intrinsics == false
   evas_opt = static_library('evas_opt',
     sources: [evas_src_opt, pub_eo_file_target, priv_eo_file_target],
     include_directories:

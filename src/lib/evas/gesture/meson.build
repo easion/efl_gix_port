@@ -66,6 +66,7 @@ foreach eo_file : pub_eo_types_files
                            '-ghd', '@INPUT@'])
 endforeach
 
+
 evas_src += files([
   'efl_canvas_gesture_touch.c',
   'efl_canvas_gesture.c',

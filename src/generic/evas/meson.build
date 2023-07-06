@@ -1,4 +1,5 @@
-generic_loaders = [ 'pdf', 'ps', 'raw', 'rsvg', 'xcf' ]
+#generic_loaders = [ 'pdf', 'ps', 'raw', 'rsvg', 'xcf' ]
+generic_loaders = [ ]
 
 if get_option('gstreamer') == true
   generic_loaders += [ 'gst' ]

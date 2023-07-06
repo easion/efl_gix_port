@@ -4,6 +4,9 @@ if get_option('x11')
   mods +=['ibus', 'xim', 'scim']
 endif
 
+if get_option('gix')
+#  mods +=['ibus', 'xim', 'scim']
+endif
 if get_option('wl')
   mods += ['wayland']
 endif

@@ -3,6 +3,9 @@
 # ifdef HAVE_ELEMENTARY_X
 #  include <Ecore_X.h>
 # endif
+# ifdef HAVE_ELEMENTARY_GIX
+#  include <Ecore_Gix.h>
+# endif
 # ifdef HAVE_ELEMENTARY_FB
 #  include <Ecore_Fb.h>
 # endif
@@ -294,6 +297,7 @@ extern const char *_elm_engines[];
 # define ELM_DRM               (_elm_engines[10])
 # define ELM_SOFTWARE_DDRAW    (_elm_engines[11])
 # define ELM_GL_DRM            (_elm_engines[12])
+# define ELM_SOFTWARE_GIX      (_elm_engines[13])
 
 # define ELM_FONT_TOKEN_STYLE  ":style="
 

@@ -2,6 +2,7 @@ engines = [
 ['cocoa', ['cocoa']],
 ['drm', ['drm']],
 ['fb', ['fb']],
+['gix', ['gix']],
 ['sdl', ['sdl']],
 ['wayland', ['wl']],
 ['x', ['x11']],

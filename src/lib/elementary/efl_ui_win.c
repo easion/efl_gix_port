@@ -103,6 +103,15 @@ struct _Efl_Ui_Win_Data
       Eina_Bool shaped : 1;
    } x;
 #endif
+#if defined(HAVE_ELEMENTARY_GIX)
+	struct
+   {
+      Ecore_Gix_Window       xwin;
+      Ecore_Event_Handler *client_message_handler;
+      Ecore_Event_Handler *property_handler;
+      Eina_Bool shaped : 1;
+   } x;
+#endif
 #ifdef HAVE_ELEMENTARY_WL2
    struct
    {
@@ -451,7 +460,7 @@ _efl_ui_win_type_to_elm_win_type(Efl_Ui_Win_Type type)
 #undef CONVERT_TYPE
 }
 
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
 static void _elm_win_xwin_update(Efl_Ui_Win_Data *sd);
 #endif
 
@@ -478,14 +487,20 @@ _elm_win_first_frame_do(void *data, Evas *e EINA_UNUSED, void *event_info EINA_U
 Ecore_X_Window
 _elm_ee_xwin_get(const Ecore_Evas *ee)
 {
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
    const char *engine_name;
    if (!ee) return 0;
 
    engine_name = ecore_evas_engine_name_get(ee);
    if (EINA_UNLIKELY(!engine_name)) return 0;
 
-   if (!strcmp(engine_name, ELM_SOFTWARE_X11))
+#if defined(HAVE_ELEMENTARY_GIX)
+   if (!strcmp(engine_name, ELM_SOFTWARE_GIX))
+     {
+        return ecore_evas_software_gix_window_get(ee);
+     }
+#else
+	if (!strcmp(engine_name, ELM_SOFTWARE_X11))
      {
         return ecore_evas_software_x11_window_get(ee);
      }
@@ -493,13 +508,14 @@ _elm_ee_xwin_get(const Ecore_Evas *ee)
      {
         return ecore_evas_gl_x11_window_get(ee);
      }
+#endif
 #else
    (void)ee;
 #endif
    return 0;
 }
 
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
 static void
 _internal_elm_win_xwindow_get(Efl_Ui_Win_Data *sd)
 {
@@ -1735,7 +1751,7 @@ _win_rotate(Evas_Object *obj, Efl_Ui_Win_Data *sd, int rotation, Eina_Bool resiz
    efl_gfx_hint_size_restricted_min_set(obj, EINA_SIZE2D(-1, -1));
    efl_gfx_hint_size_restricted_max_set(obj, EINA_SIZE2D(-1, -1));
    _elm_win_resize_objects_eval(obj, EINA_FALSE);
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
    _elm_win_xwin_update(sd);
 #endif
    _elm_win_frame_obj_update(sd, 0);
@@ -3133,7 +3149,7 @@ _efl_ui_win_efl_canvas_group_group_del(Eo *obj, Efl_Ui_Win_Data *sd)
    eina_stringshare_del(sd->shot.info);
    ecore_timer_del(sd->shot.timer);
 
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
    ecore_event_handler_del(sd->x.client_message_handler);
    ecore_event_handler_del(sd->x.property_handler);
 #endif
@@ -3504,6 +3520,20 @@ _internal_elm_win_win32window_get(Efl_Ui_Win_Data *sd)
 }
 #endif
 
+#if defined(HAVE_ELEMENTARY_GIX)
+static void
+_elm_win_xwin_update(Efl_Ui_Win_Data *sd)
+{
+   //const char *s;
+
+   if (sd->type == EFL_UI_WIN_TYPE_FAKE) return;
+   _internal_elm_win_xwindow_get(sd);
+
+   if (!sd->x.xwin) return;  /* nothing more to do */
+   _internal_elm_win_xwindow_get(sd);
+
+}
+#endif
 #ifdef HAVE_ELEMENTARY_X
 static void
 _elm_win_xwin_update(Efl_Ui_Win_Data *sd)
@@ -3918,6 +3948,30 @@ _elm_win_translate(void)
      efl_ui_l10n_translation_update(obj);
 }
 
+#ifdef HAVE_ELEMENTARY_GIX
+static Eina_Bool
+_elm_win_gix_client_message(void *data,
+                        int type EINA_UNUSED,
+                        void *event)
+{
+   ELM_WIN_DATA_GET(data, sd);
+   Ecore_Gix_Event_Client_Message *e = event;
+
+   if (e->format != 32) return ECORE_CALLBACK_PASS_ON;
+   _internal_elm_win_xwindow_get(sd);
+   return ECORE_CALLBACK_PASS_ON;
+}
+
+static Eina_Bool
+_elm_win_gix_property_change(void *data,
+                         int type EINA_UNUSED,
+                         void *event)
+{
+   ELM_WIN_DATA_GET(data, sd);
+   Ecore_Gix_Event_Window_Property *e = event;
+   return ECORE_CALLBACK_PASS_ON;
+}
+#endif
 
 #ifdef HAVE_ELEMENTARY_X
 static Eina_Bool
@@ -5305,6 +5359,14 @@ _elm_win_finalize_internal(Eo *obj, Efl_Ui_Win_Data *sd, const char *name, Efl_U
           }
 #endif
 
+#ifdef HAVE_ELEMENTARY_GIX
+        else if ((disp) && (!strcmp(disp, "gix")))
+          {
+			  enginelist[p++] = ELM_SOFTWARE_GIX;
+			  //enginelist[p++] = ELM_OPENGL_X11;               
+          }
+#endif
+
 #ifdef HAVE_ELEMENTARY_WL2
         else if ((disp) && (!strcmp(disp, "wl")))
           {
@@ -5476,6 +5538,9 @@ _elm_win_finalize_internal(Eo *obj, Efl_Ui_Win_Data *sd, const char *name, Efl_U
 #ifdef HAVE_ELEMENTARY_SDL
                   enginelist[p++] = ELM_SOFTWARE_SDL;
 #endif
+#ifdef HAVE_ELEMENTARY_GIX
+                  enginelist[p++] = ELM_SOFTWARE_GIX;
+#endif
 #ifdef HAVE_ELEMENTARY_X
                   enginelist[p++] = ELM_OPENGL_X11;
 #endif
@@ -5520,6 +5585,10 @@ _elm_win_finalize_internal(Eo *obj, Efl_Ui_Win_Data *sd, const char *name, Efl_U
 
              if (!strcmp(enginelist[i], ELM_SOFTWARE_X11))
                tmp_sd.ee = ecore_evas_software_x11_new(NULL, 0, 0, 0, 0, 0);
+#ifdef HAVE_ELEMENTARY_GIX
+			 else if (!strcmp(enginelist[i], ELM_SOFTWARE_GIX))
+               tmp_sd.ee = ecore_evas_software_gix_new( 0, 0, 0, 0, 0);
+#endif
              else if (!strcmp(enginelist[i], ELM_OPENGL_X11))
                {
                   if (opt_i > 0)
@@ -5600,8 +5669,19 @@ _elm_win_finalize_internal(Eo *obj, Efl_Ui_Win_Data *sd, const char *name, Efl_U
     * pointer */
    if (type == EFL_UI_WIN_TYPE_INLINED_IMAGE)
      _win_inlined_image_set(sd);
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_GIX)
    else if ((engine) &&
+            ((!strcmp(engine, ELM_SOFTWARE_GIX)) 
+             ) )
+     {
+        sd->x.client_message_handler = ecore_event_handler_add
+            (ECORE_GIX_EVENT_CLIENT_MESSAGE, _elm_win_gix_client_message, obj);
+        sd->x.property_handler = ecore_event_handler_add
+            (ECORE_GIX_EVENT_WINDOW_PROPERTY, _elm_win_gix_property_change, obj);
+     }
+#endif
+#if defined(HAVE_ELEMENTARY_X) 
+	else if ((engine) &&
             ((!strcmp(engine, ELM_SOFTWARE_X11)) ||
              (!strcmp(engine, ELM_OPENGL_X11))))
      {
@@ -5758,7 +5838,7 @@ _elm_win_finalize_internal(Eo *obj, Efl_Ui_Win_Data *sd, const char *name, Efl_U
    sd->wm_rot.wm_supported = ecore_evas_wm_rotation_supported_get(sd->ee);
    sd->wm_rot.preferred_rot = -1; // it means that elm_win doesn't use preferred rotation.
 
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
    _elm_win_xwin_update(sd);
 #endif
 
@@ -6120,7 +6200,7 @@ _efl_ui_win_win_role_set(Eo *obj EINA_UNUSED, Efl_Ui_Win_Data *sd, const char *r
 {
    if (!role) return;
    eina_stringshare_replace(&(sd->role), role);
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
    _elm_win_xwin_update(sd);
 #endif
 }
@@ -6161,7 +6241,7 @@ _efl_ui_win_icon_object_set(Eo *obj, Efl_Ui_Win_Data *sd, Evas_Object *icon)
              evas_object_is_frame_object_set(sd->icon, EINA_TRUE);
           }
      }
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
    _elm_win_xwin_update(sd);
 #endif
 }
@@ -6291,7 +6371,7 @@ _efl_ui_win_center(Eo *obj, Efl_Ui_Win_Data *sd, Eina_Bool h, Eina_Bool v)
           }
         // not e - fall back to manually placing on what we think the screen
         // is/will be... to do this move window to where pointer is first
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) //|| defined(HAVE_ELEMENTARY_GIX)
         if (sd->x.xwin)
           {
              int x = 0, y = 0;
@@ -6353,7 +6433,7 @@ _efl_ui_win_borderless_set(Eo *obj, Efl_Ui_Win_Data *sd, Eina_Bool borderless)
      TRAP(sd, borderless_set, borderless);
 
    _elm_win_resize_objects_eval(obj, EINA_FALSE);
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
    _elm_win_xwin_update(sd);
 #endif
 }
@@ -6409,7 +6489,7 @@ _efl_ui_win_fullscreen_set(Eo *obj EINA_UNUSED, Efl_Ui_Win_Data *sd, Eina_Bool f
 //        sd->fullscreen = fullscreen;
         TRAP(sd, fullscreen_set, fullscreen);
 
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
         _elm_win_xwin_update(sd);
 #endif
      }
@@ -6538,7 +6618,7 @@ _efl_ui_win_maximized_set(Eo *obj EINA_UNUSED, Efl_Ui_Win_Data *sd, Eina_Bool ma
    _elm_win_frame_style_update(sd, 0, 1);
    // YYY: handle if sd->img_obj
    TRAP(sd, maximized_set, maximized);
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
    _elm_win_xwin_update(sd);
 #endif
 }
@@ -6554,7 +6634,7 @@ _efl_ui_win_minimized_set(Eo *obj EINA_UNUSED, Efl_Ui_Win_Data *sd, Eina_Bool mi
 {
 //   sd->minimized = minimized;
    TRAP(sd, iconified_set, minimized);
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
    _elm_win_xwin_update(sd);
 #endif
 }
@@ -6656,7 +6736,7 @@ _efl_ui_win_urgent_set(Eo *obj EINA_UNUSED, Efl_Ui_Win_Data *sd, Efl_Ui_Win_Urge
 
    sd->urgent = urgent_tmp;
    TRAP(sd, urgent_set, urgent_tmp);
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
    _elm_win_xwin_update(sd);
 #endif
 }
@@ -6682,7 +6762,7 @@ _efl_ui_win_modal_set(Eo *obj, Efl_Ui_Win_Data *sd, Efl_Ui_Win_Modal_Mode modal)
 
    sd->modal = modal_tmp;
    TRAP(sd, modal_set, modal_tmp);
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
    _elm_win_xwin_update(sd);
 #endif
 }
@@ -6699,7 +6779,7 @@ _win_aspect_set(Efl_Ui_Win_Data *sd, double aspect)
 {
    sd->aspect = aspect;
    TRAP(sd, aspect_set, aspect);
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
    _elm_win_xwin_update(sd);
 #endif
 }
@@ -6740,7 +6820,7 @@ _efl_ui_win_hint_base_set(Eo *obj EINA_UNUSED, Efl_Ui_Win_Data *sd, Eina_Size2D 
    sd->size_base_w = sz.w;
    sd->size_base_h = sz.h;
    TRAP(sd, size_base_set, sz.w, sz.h);
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
    _elm_win_xwin_update(sd);
 #endif
 }
@@ -6757,7 +6837,7 @@ _efl_ui_win_hint_step_set(Eo *obj EINA_UNUSED, Efl_Ui_Win_Data *sd, Eina_Size2D 
    sd->size_step_w = sz.w;
    sd->size_step_h = sz.h;
    TRAP(sd, size_step_set, sz.w, sz.h);
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
    _elm_win_xwin_update(sd);
 #endif
 }
@@ -6939,7 +7019,7 @@ _efl_ui_win_sticky_set(Eo *obj EINA_UNUSED, Efl_Ui_Win_Data *sd, Eina_Bool stick
 {
 //   sd->sticky = sticky;
    TRAP(sd, sticky_set, sticky);
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
    _elm_win_xwin_update(sd);
 #endif
 }
@@ -7185,7 +7265,7 @@ _efl_ui_win_stack_master_id_set(Eo *obj EINA_UNUSED, Efl_Ui_Win_Data *sd, const 
 {
    if (sd->shown) return;
    eina_stringshare_replace(&(sd->stack_master_id), id);
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
    if (sd->x.xwin)
      _elm_win_xwin_update(sd);
    else
@@ -7936,7 +8016,7 @@ elm_win_xwindow_get(const Evas_Object *obj)
    Efl_Ui_Win_Data *sd = efl_data_scope_safe_get(obj, MY_CLASS);
    if (!sd) return 0;
 
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
    _internal_elm_win_xwindow_get(sd);
    if (sd->x.xwin) return sd->x.xwin;
    if (sd->parent) return elm_win_xwindow_get(sd->parent);
@@ -8028,7 +8108,7 @@ elm_win_override_set(Evas_Object *obj, Eina_Bool override)
    if (!sd) return;
 
    TRAP(sd, override_set, override);
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
    _elm_win_xwin_update(sd);
 #endif
 }
@@ -8229,7 +8309,7 @@ elm_win_indicator_mode_set(Evas_Object *obj, Elm_Win_Indicator_Mode mode)
      }
 
    if (mode == sd->legacy.indmode) return;
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
    _internal_elm_win_xwindow_get(sd);
 #endif
    sd->legacy.indmode = mode;
@@ -8509,7 +8589,7 @@ elm_win_icon_name_set(Evas_Object *obj, const char *icon_name)
 
    if (!icon_name) return;
    eina_stringshare_replace(&(sd->icon_name), icon_name);
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
    _elm_win_xwin_update(sd);
 #endif
 }
@@ -8531,7 +8611,7 @@ elm_win_withdrawn_set(Evas_Object *obj, Eina_Bool withdrawn)
 
 //   sd->withdrawn = withdrawn;
    TRAP(sd, withdrawn_set, withdrawn);
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
    _elm_win_xwin_update(sd);
 #endif
 }
@@ -8559,7 +8639,7 @@ elm_win_urgent_set(Evas_Object *obj, Eina_Bool urgent)
      return;
    sd->urgent = urgent;
    TRAP(sd, urgent_set, urgent);
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
    _elm_win_xwin_update(sd);
 #endif
 }
@@ -8581,7 +8661,7 @@ elm_win_demand_attention_set(Evas_Object *obj, Eina_Bool demand_attention)
 
    sd->demand_attention = demand_attention;
    TRAP(sd, demand_attention_set, demand_attention);
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
    _elm_win_xwin_update(sd);
 #endif
 }
@@ -8759,7 +8839,7 @@ elm_win_layer_set(Evas_Object *obj, int layer)
    if (!sd) return;
 
    TRAP(sd, layer_set, layer);
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
    _elm_win_xwin_update(sd);
 #endif
 }
@@ -8797,7 +8877,7 @@ _elm_win_window_id_get(Efl_Ui_Win_Data *sd)
           return (Ecore_Window)parent;
      }
 #endif
-#ifdef HAVE_ELEMENTARY_X
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_GIX)
    _internal_elm_win_xwindow_get(sd);
    if (sd->x.xwin)
      {

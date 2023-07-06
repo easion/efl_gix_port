@@ -11,7 +11,10 @@
 #include <Ecore_X.h>
 #include <Ecore_X_Cursor.h>
 #endif
-
+#if defined(HAVE_ELEMENTARY_GIX)
+#include <Ecore_Gix.h>
+//#include <Ecore_Gix_Cursor.h>
+#endif
 #ifdef HAVE_ELEMENTARY_WIN32
 #include <Ecore_Win32.h>
 #endif
@@ -494,7 +497,7 @@ _elm_cursor_del(void *data EINA_UNUSED, Evas *evas EINA_UNUSED, Evas_Object *obj
    elm_object_cursor_unset(obj);
 }
 
-#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_COCOA) || defined(HAVE_ELEMENTARY_WIN32)
+#if defined(HAVE_ELEMENTARY_X) || defined(HAVE_ELEMENTARY_COCOA) || defined(HAVE_ELEMENTARY_GIX) || defined(HAVE_ELEMENTARY_WIN32)
 static int
 _elm_cursor_strcmp(const void *data1, const void *data2)
 {
